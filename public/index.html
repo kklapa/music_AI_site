@@ -1,1 +1,276 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#07070b" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="NEONWAVE" />
+<title>NEONWAVE — AI Music</title>
+<link rel="manifest" href="/manifest.json" />
+<link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/icons/icon.svg" />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
 
+<!-- Ambient gradient background -->
+<div id="ambient" class="ambient" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ============ HEADER ============ -->
+<header class="topbar">
+  <a class="brand" href="/">
+    <span class="brand-dot"></span>
+    <span class="brand-name" id="brandName">NEONWAVE</span>
+  </a>
+
+  <div class="topbar-actions">
+    <button class="icon-btn" id="openRoomBtn" title="Live Room">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 3a4 4 0 0 0-4 4v5a4 4 0 0 0 8 0V7a4 4 0 0 0-4-4Zm7 9a1 1 0 1 0-2 0 5 5 0 0 1-10 0 1 1 0 1 0-2 0 7 7 0 0 0 6 6.92V21a1 1 0 1 0 2 0v-2.08A7 7 0 0 0 19 12Z"/></svg>
+    </button>
+    <button class="icon-btn" id="installBtn" hidden title="Встановити застосунок">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 3a1 1 0 0 1 1 1v9.59l3.3-3.3a1 1 0 1 1 1.4 1.42l-5 5a1 1 0 0 1-1.4 0l-5-5a1 1 0 1 1 1.4-1.42l3.3 3.3V4a1 1 0 0 1 1-1ZM5 18a1 1 0 1 0 0 2h14a1 1 0 1 0 0-2H5Z"/></svg>
+    </button>
+    <a class="icon-btn" id="adminLink" href="/admin" hidden title="Адмінка">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Zm0 5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm0 12c-1.8 0-3.4-.9-4.4-2.2.6-1.6 2.3-2.3 4.4-2.3s3.8.7 4.4 2.3A5.4 5.4 0 0 1 12 19Z"/></svg>
+    </a>
+    <button class="btn-ghost" id="loginBtn">Увійти</button>
+    <div class="user-chip" id="userChip" hidden>
+      <span class="avatar" id="userAvatar"></span>
+      <span class="user-name" id="userName"></span>
+      <button class="icon-btn small" id="logoutBtn" title="Вийти">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 3a1 1 0 0 1 0 2H6v14h4a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5Zm7.3 5.3 3.7 3.7-3.7 3.7a1 1 0 0 1-1.4-1.4L17.6 13H10a1 1 0 1 1 0-2h7.6l-1.7-1.3a1 1 0 0 1 1.4-1.4Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ MAIN ============ -->
+<main class="main">
+
+  <section class="hero">
+    <div class="hero-glow"></div>
+    <h1 class="hero-title">Музика,<br /><span>народжена з промпту</span></h1>
+    <p class="hero-sub" id="heroSub">Стрімінг ШІ-треків, створених за допомогою Suno, Udio та інших моделей</p>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="all">Усі треки</button>
+    <button class="tab" data-tab="likes" id="tabLikes" hidden>Вподобані</button>
+    <button class="tab" data-tab="history" id="tabHistory" hidden>Історія</button>
+  </nav>
+
+  <section class="track-section">
+    <div class="skeleton-list" id="skeletonList">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="track-list" id="trackList"></div>
+    <div class="empty-state" id="emptyState" hidden>
+      <p>Тут поки що порожньо.</p>
+    </div>
+  </section>
+</main>
+
+<!-- ============ PLAYER ============ -->
+<div class="player" id="player">
+  <canvas class="visualizer" id="visualizer"></canvas>
+
+  <div class="player-progress" id="playerProgress">
+    <div class="player-progress-fill" id="progressFill"></div>
+    <div class="player-progress-markers" id="progressMarkers"></div>
+  </div>
+
+  <div class="player-inner">
+
+    <div class="player-left">
+      <div class="p-cover-wrap">
+        <img class="p-cover" id="pCover" alt="" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1 1'%3E%3C/svg%3E" />
+        <div class="reaction-layer" id="reactionLayer"></div>
+      </div>
+      <div class="p-meta">
+        <div class="p-title" id="pTitle">Оберіть трек</div>
+        <div class="p-artist" id="pArtist">—</div>
+      </div>
+      <button class="icon-btn like-btn" id="likeBtn" title="Вподобати">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M12 21s-7.5-4.6-9.3-9A5.6 5.6 0 0 1 12 5.6 5.6 5.6 0 0 1 21.3 12c-1.8 4.4-9.3 9-9.3 9Z"/></svg>
+      </button>
+    </div>
+
+    <div class="player-center">
+      <div class="controls">
+        <button class="ctrl-btn" id="shuffleBtn" title="Перемішати">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M17 3h4v4h-2V6.4l-4.3 4.3-1.4-1.4L17.6 5H17V3Zm0 12h.6l-4.3-4.3 1.4-1.4L19 13.6V12h2v4h-4v-1ZM3 6h3.6l3.7 3.7-1.4 1.4L5.6 8H3V6Zm0 10h3.6l9-9H17v2h-.4l-9 9H3v-2Z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="prevBtn" title="Попередній">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M7 6a1 1 0 0 1 2 0v12a1 1 0 1 1-2 0V6Zm10.5-.9a1 1 0 0 1 1.5.9v12a1 1 0 0 1-1.5.9l-9-6a1 1 0 0 1 0-1.8l9-6Z"/></svg>
+        </button>
+        <button class="play-btn" id="playBtn" title="Відтворити">
+          <svg class="i-play" viewBox="0 0 24 24" width="26" height="26"><path fill="currentColor" d="M8 5.1a1 1 0 0 1 1.5-.9l10 6.9a1 1 0 0 1 0 1.8l-10 6.9A1 1 0 0 1 8 18.9V5.1Z"/></svg>
+          <svg class="i-pause" viewBox="0 0 24 24" width="26" height="26" hidden><path fill="currentColor" d="M7 4h4v16H7V4Zm6 0h4v16h-4V4Z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="nextBtn" title="Наступний">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M17 6a1 1 0 1 1 2 0v12a1 1 0 1 1-2 0V6ZM6.5 5.1 15.5 11a1 1 0 0 1 0 1.8l-9 6A1 1 0 0 1 5 18V6a1 1 0 0 1 1.5-.9Z"/></svg>
+        </button>
+        <button class="ctrl-btn" id="repeatBtn" title="Повтор">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M7 7h10v2.5l3.5-3.5L17 2.5V5H5v6h2V7Zm10 10H7v-2.5L3.5 18 7 21.5V19h12v-6h-2v4Z"/></svg>
+        </button>
+      </div>
+
+      <div class="seek-row">
+        <span class="time" id="curTime">0:00</span>
+        <div class="seek" id="seek">
+          <div class="seek-track"></div>
+          <div class="seek-buffer" id="seekBuffer"></div>
+          <div class="seek-fill" id="seekFill"></div>
+          <div class="seek-markers" id="seekMarkers"></div>
+          <div class="seek-handle" id="seekHandle"></div>
+        </div>
+        <span class="time" id="durTime">0:00</span>
+      </div>
+    </div>
+
+    <div class="player-right">
+      <button class="chip-btn" id="promptBtn" title="ШІ-промпт">AI&nbsp;PROMPT</button>
+      <button class="chip-btn" id="commentBtn" title="Коментарі на таймлайні">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M4 4h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 4V6a2 2 0 0 1 2-2Z"/></svg>
+      </button>
+      <div class="volume-wrap">
+        <button class="icon-btn" id="volumeBtn" title="Звук">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M4 9h3l4-4v14l-4-4H4V9Zm11.5 3a3.5 3.5 0 0 0-2-3.2v6.4a3.5 3.5 0 0 0 2-3.2Zm-2-7v2.1a6 6 0 0 1 0 9.8V19a8 8 0 0 0 0-14Z"/></svg>
+        </button>
+        <input type="range" class="volume" id="volume" min="0" max="1" step="0.01" value="1" />
+      </div>
+      <button class="icon-btn queue-btn" id="queueBtn" title="Черга">
+        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M4 5h16v2H4V5Zm0 6h16v2H4v-2Zm0 6h10v2H4v-2Z"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: AUTH ============ -->
+<div class="modal" id="authModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card small">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title" id="authTitle">Вхід</h2>
+
+    <form id="authForm" class="form">
+      <label class="field">
+        <span>Ім'я користувача</span>
+        <input type="text" id="authUsername" autocomplete="username" required minlength="3" maxlength="32" />
+      </label>
+      <label class="field">
+        <span>Пароль</span>
+        <input type="password" id="authPassword" autocomplete="current-password" required minlength="8" />
+      </label>
+      <div class="form-error" id="authError" hidden></div>
+      <button type="submit" class="btn-primary" id="authSubmit">Увійти</button>
+    </form>
+
+    <p class="switch-line" id="switchLine">
+      Немає акаунту? <a href="#" id="switchAuth">Зареєструватися</a>
+    </p>
+  </div>
+</div>
+
+<!-- ============ MODAL: AI PROMPT ============ -->
+<div class="modal" id="promptModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">ШІ-промпт</h2>
+    <div class="prompt-meta" id="promptMeta"></div>
+    <pre class="prompt-body" id="promptBody">—</pre>
+    <button class="btn-ghost copy-btn" id="copyPromptBtn">Скопіювати</button>
+  </div>
+</div>
+
+<!-- ============ MODAL: COMMENTS ============ -->
+<div class="modal" id="commentsModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">Коментарі на таймлайні</h2>
+    <div class="comment-list" id="commentList"></div>
+    <form class="comment-form" id="commentForm">
+      <div class="comment-at" id="commentAt">00:00</div>
+      <input type="text" id="commentInput" placeholder="Написати коментар на цій секунді..." maxlength="500" />
+      <button type="submit" class="btn-primary small">Надіслати</button>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: LIVE ROOM ============ -->
+<div class="modal" id="roomModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card room-card">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">Live Listen Room</h2>
+
+    <div class="room-start" id="roomStart">
+      <p class="room-desc">Створіть кімнату та поділіться посиланням — усі слухатимуть синхронно.</p>
+      <label class="field">
+        <span>Назва кімнати</span>
+        <input type="text" id="roomNameInput" maxlength="48" placeholder="Нічний сеанс" />
+      </label>
+      <button class="btn-primary" id="createRoomBtn">Створити кімнату</button>
+      <div class="room-or">або</div>
+      <div class="room-join-row">
+        <input type="text" id="roomCodeInput" placeholder="КОД" maxlength="6" />
+        <button class="btn-ghost" id="joinRoomBtn">Приєднатися</button>
+      </div>
+    </div>
+
+    <div class="room-active" id="roomActive" hidden>
+      <div class="room-header">
+        <div>
+          <div class="room-name" id="roomNameLabel">—</div>
+          <div class="room-host">Ведучий: <span id="roomHostLabel">—</span></div>
+        </div>
+        <button class="btn-ghost small" id="copyRoomLink">Копіювати лінк</button>
+      </div>
+
+      <div class="room-members" id="roomMembers"></div>
+
+      <div class="room-chat" id="roomChat"></div>
+
+      <form class="room-chat-form" id="roomChatForm">
+        <input type="text" id="roomChatInput" placeholder="Повідомлення..." maxlength="300" />
+        <button type="submit" class="btn-primary small">→</button>
+      </form>
+
+      <div class="room-reactions" id="roomReactions">
+        <button data-emoji="🔥">🔥</button>
+        <button data-emoji="❤️">❤️</button>
+        <button data-emoji="🎧">🎧</button>
+        <button data-emoji="🤯">🤯</button>
+        <button data-emoji="👏">👏</button>
+      </div>
+
+      <button class="btn-ghost leave-btn" id="leaveRoomBtn">Покинути кімнату</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: QUEUE ============ -->
+<div class="modal" id="queueModal" hidden>
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <button class="modal-close" data-close>&times;</button>
+    <h2 class="modal-title">Черга відтворення</h2>
+    <div class="queue-list" id="queueList"></div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<audio id="audioA" preload="metadata" crossorigin="anonymous"></audio>
+<audio id="audioB" preload="metadata" crossorigin="anonymous"></audio>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
