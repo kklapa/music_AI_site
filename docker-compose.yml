@@ -1,1 +1,17 @@
+version: "3.9"
 
+services:
+  neonwave:
+    build: .
+    image: neonwave:latest
+    container_name: neonwave
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - ./data:/app/data
+      - ./uploads:/app/uploads
+    security_opt:
+      - no-new-privileges:true
