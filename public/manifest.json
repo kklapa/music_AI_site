@@ -1,1 +1,42 @@
-
+{
+  "name": "NEONWAVE — AI Music Streaming",
+  "short_name": "NEONWAVE",
+  "description": "Стрімінг та публікація ШІ-музики. Живі кімнати, коментарі на таймлайні, преміальний неоновий плеєр.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#07070b",
+  "theme_color": "#07070b",
+  "lang": "uk",
+  "dir": "ltr",
+  "categories": ["music", "entertainment", "multimedia"],
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Усі треки",
+      "short_name": "Треки",
+      "url": "/?source=shortcut"
+    },
+    {
+      "name": "Адмінка",
+      "short_name": "Адмін",
+      "url": "/admin"
+    }
+  ]
+}
